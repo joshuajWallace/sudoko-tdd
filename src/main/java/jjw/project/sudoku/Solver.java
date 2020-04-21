@@ -1,6 +1,5 @@
 package jjw.project.sudoku;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,13 +75,7 @@ public @Data class Solver {
 	}
 
 
-	private boolean unfinished() {
-		for(int [] tempRow: board)
-			for(int tempNumber: tempRow)
-				if(tempNumber == 0)
-					return true;
-		return false;
-	}
+
 	
 	
 
