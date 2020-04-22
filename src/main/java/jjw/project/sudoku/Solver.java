@@ -2,13 +2,27 @@ package jjw.project.sudoku;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BooleanSupplier;
 
 import lombok.Data;
 
-public @Data class Solver {
-	
+public class Solver {
 	private  int[][] board= new int[9][9];
-	private int[][] solution = new int[9][9];
+	private List<int[][]> solution = new CopyOnWriteArrayList<>();
+	int solutionIndex = 0;
+	
+	public int[][] getBoard() {
+		return board;
+	}
+
+
+	public void setBoard(int[][] board) {
+		this.board = board;
+	}
+
+
+
 
 	public Solver() { 
 		for(int[] temp : board)
@@ -43,35 +57,52 @@ public @Data class Solver {
 		return false;
 	}
 
-	public int[][] solution() {
-		solve();
-		return solution;
+	public int[][] nextSolution() {
+		int [][] currentSolution = solution.get(solutionIndex);
+		solutionIndex++;
+		if(solutionIndex == solution.size()) {
+			solutionIndex = 0;
+		}
+		return currentSolution;
+
 	}
 
 
-	private void solve() {
-		for(int rowPosition = 0; rowPosition < 9; rowPosition ++) 
-			for(int columnPosition = 0; columnPosition < 9; columnPosition++) 
+	public void solve() {
+		for(int rowPosition = 0; rowPosition < 9; rowPosition ++) {
+			for(int columnPosition = 0; columnPosition < 9; columnPosition++) { 
 				if(board[rowPosition][columnPosition] == 0) {
 					for(int value = 1; value < 10; value++) 
 						if(possible(rowPosition, columnPosition, value) ) {
 							board[rowPosition][columnPosition] = value;
 							solve();
-							board[rowPosition][columnPosition] = 0;
-													
+							board[rowPosition][columnPosition] = 0;							
 						}
+					
 					return;
 				}
-		
-		for(int rowPosition = 0; rowPosition < 9; rowPosition ++) 
-			for(int columnPosition = 0; columnPosition < 9; columnPosition++)
-				solution[rowPosition][columnPosition] = board[rowPosition][columnPosition];
+			}
+		}
+		int[][] tempSolution = new int[9][];
+		int i = 0;
+		for(int[] temp: board) {
 
+			tempSolution[i] = Arrays.copyOf(temp, 9);
+			i++;
+		}
+		solution.add(tempSolution);
 	}
 
 
 	private boolean possible(int rowPosition, int columnPosition, int value) {
 		return (!checkRow(rowPosition, value) && !checkColumn(columnPosition, value) && !checkSection(rowPosition, columnPosition, value));
+	}
+
+
+	public boolean isValid() {
+		solve();
+		return (solution.size() == 1);
+		
 	}
 
 

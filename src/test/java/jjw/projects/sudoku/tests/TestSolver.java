@@ -11,7 +11,9 @@ import jjw.project.sudoku.Solver;
 
 class TestSolver {
 	private static int[][] testBoard ;
-	Solver testSolver = new Solver();
+	private static int[][] badTestBoard;
+	private Solver testSolver = new Solver();
+	
 	
 	@BeforeEach
 	void setup() {			
@@ -25,6 +27,18 @@ class TestSolver {
 							{0,0,0,0,7,9,2,6,0},
 							{0,2,0,0,5,0,9,8,0}};
 	testBoard = testPuzzle;
+	int[][] invalidSudokuTestPuzzle = {	{5,3,0,0,7,0,0,0,0},
+										{6,0,0,1,9,5,0,0,0},
+										{0,9,8,0,0,0,0,6,0},
+										{8,0,0,0,6,0,0,0,3},
+										{4,0,0,8,0,3,0,0,1},
+										{7,0,0,0,2,0,0,0,6},
+										{0,6,0,0,0,0,2,8,0},
+										{0,0,0,4,1,9,0,0,5},
+										{0,0,0,0,8,0,0,0,0}};
+	badTestBoard = invalidSudokuTestPuzzle;
+	
+	
 	}
 
 	@Test
@@ -75,8 +89,48 @@ class TestSolver {
 							{9,6,4,2,8,3,7,5,1},
 							{8,1,5,4,7,9,2,6,3},
 							{7,2,3,6,5,1,9,8,4}};
-		int[][] testSolution = testSolver.solution();
+		testSolver.solve();
+		int[][] testSolution = testSolver.nextSolution();
 		assertArrayEquals(solution, testSolution, "Nope");
+	}
+	@Test
+	void moreThenOneSolution(){
+	
+	int[][] solutionOne = { 	{5,3,4,6,7,8,1,9,2},
+								{6,7,2,1,9,5,3,4,8},
+								{1,9,8,3,4,2,5,6,7},
+								{8,5,9,7,6,1,4,2,3},
+								{4,2,6,8,5,3,9,7,1},
+								{7,1,3,9,2,4,8,5,6},
+								{9,6,1,5,3,7,2,8,4},
+								{2,8,7,4,1,9,6,3,5},
+								{3,4,5,2,8,6,7,1,9}};
+	
+	
+	int[][] solutionTwo = {		{5,3,4,6,7,8,9,1,2},
+								{6,7,2,1,9,5,3,4,8},
+								{1,9,8,3,4,2,5,6,7},
+								{8,5,9,7,6,1,4,2,3},
+								{4,2,6,8,5,3,7,9,1},
+								{7,1,3,9,2,4,8,5,6},
+								{9,6,1,5,3,7,2,8,4},
+								{2,8,7,4,1,9,6,3,5},
+								{3,4,5,2,8,6,1,7,9}};
+			
+	
+	testSolver.setBoard(badTestBoard);
+	testSolver.solve();
+	assertArrayEquals(solutionOne, testSolver.nextSolution(), "One Fail");
+	assertArrayEquals(solutionTwo, testSolver.nextSolution(), "Two Fail");	
+		
+	}
+	
+	@Test
+	void testValidSudoku() {
+		testSolver.setBoard(testBoard);
+		assertTrue(testSolver.isValid());
+		testSolver.setBoard(badTestBoard);
+		assertFalse(testSolver.isValid());
 	}
 	
 	
