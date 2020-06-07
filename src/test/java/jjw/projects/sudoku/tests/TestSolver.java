@@ -3,6 +3,7 @@ package jjw.projects.sudoku.tests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,8 @@ class TestSolver {
 							{0,0,4,0,0,3,0,0,1},
 							{0,0,0,0,7,9,2,6,0},
 							{0,2,0,0,5,0,9,8,0}};
+	
+
 	testBoard = testPuzzle;
 	int[][] invalidSudokuTestPuzzle = {	{5,3,0,0,7,0,0,0,0},
 										{6,0,0,1,9,5,0,0,0},
@@ -89,7 +92,7 @@ class TestSolver {
 							{9,6,4,2,8,3,7,5,1},
 							{8,1,5,4,7,9,2,6,3},
 							{7,2,3,6,5,1,9,8,4}};
-		testSolver.solve();
+		testSolver.solve(System.currentTimeMillis());
 		int[][] testSolution = testSolver.nextSolution();
 		assertArrayEquals(solution, testSolution, "Nope");
 	}
@@ -119,7 +122,7 @@ class TestSolver {
 			
 	
 	testSolver.setBoard(badTestBoard);
-	testSolver.solve();
+	testSolver.solve(System.currentTimeMillis());
 	assertArrayEquals(solutionOne, testSolver.nextSolution(), "One Fail");
 	assertArrayEquals(solutionTwo, testSolver.nextSolution(), "Two Fail");	
 		
@@ -131,6 +134,47 @@ class TestSolver {
 		assertTrue(testSolver.isValid());
 		testSolver.setBoard(badTestBoard);
 		assertFalse(testSolver.isValid());
+	}
+	@Test 
+	void testLotsOfResults(){
+		int[][] testLots = {	{0,9,0,0,4,0,0,3,0},
+								{0,0,0,0,0,0,0,0,0},
+								{1,0,0,9,0,0,5,0,0},
+								{0,0,0,0,1,0,0,0,8},
+								{5,0,0,0,0,0,0,0,2},
+								{4,0,0,0,9,0,6,0,0},
+								{0,0,0,0,0,3,0,0,1},
+								{0,0,0,0,0,9,2,6,0},
+								{0,2,0,0,0,0,9,8,0}};
+		int[][] emptyTestBoard = {	{0,0,0,0,0,0,0,0,0},
+									{0,0,0,0,0,0,0,0,0},
+									{0,0,0,0,0,0,0,0,0},
+									{0,0,0,0,0,0,0,0,0},
+									{0,0,0,0,0,0,0,0,0},
+									{0,0,0,0,0,0,0,0,0},
+									{0,0,0,0,0,0,0,0,0},
+									{0,0,0,0,0,0,0,0,0},
+									{0,0,0,0,0,0,0,0,0}};
+		
+		testSolver.setBoard(emptyTestBoard);
+		long start = System.currentTimeMillis();
+		testSolver.solve(start);
+		List<int[][]> solution = testSolver.getSolution();
+		System.out.println(solution.size());
+		/*for(int k = 0; k <20; k++) {
+			for(int x = 0; x < solution.size(); x++) {
+				for(int i=0;i<9;i++) {
+					for(int y=0;y<9;y++) 
+						System.out.print("|" + solution.get(x)[i][y] + "|");
+				System.out.println();
+				}
+				System.out.println();
+				System.out.println();
+			}
+		}*/
+		long timeout = start - System.currentTimeMillis();
+		assertTrue(timeout < 2100);
+		
 	}
 	
 	

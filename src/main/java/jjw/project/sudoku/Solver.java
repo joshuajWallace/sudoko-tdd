@@ -1,16 +1,16 @@
 package jjw.project.sudoku;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.BooleanSupplier;
-
-import lombok.Data;
 
 public class Solver {
 	private  int[][] board= new int[9][9];
-	private List<int[][]> solution = new CopyOnWriteArrayList<>();
-	int solutionIndex = 0;
+	private List<int[][]> solution;
+	private int timeout = 2000;
+	private int solutionIndex ;
 	
 	public int[][] getBoard() {
 		return board;
@@ -25,8 +25,7 @@ public class Solver {
 
 
 	public Solver() { 
-		for(int[] temp : board)
-			Arrays.fill(temp, 0);
+		reset();
 	}
 
 
@@ -46,6 +45,7 @@ public class Solver {
 		return false;
 	}
 	
+	// Using integer math.
 	public Boolean checkSection(int row, int column, int value) {
 		int sectionStartrow = ((row)/3)*3;
 		int sectionStartColumn = ((column)/3)*3;
@@ -67,15 +67,22 @@ public class Solver {
 
 	}
 
+	public List<int[][]> getSolution() {
+		return solution;
+	}
 
-	public void solve() {
+
+	public void solve(long time) {
 		for(int rowPosition = 0; rowPosition < 9; rowPosition ++) {
 			for(int columnPosition = 0; columnPosition < 9; columnPosition++) { 
 				if(board[rowPosition][columnPosition] == 0) {
 					for(int value = 1; value < 10; value++) 
 						if(possible(rowPosition, columnPosition, value) ) {
 							board[rowPosition][columnPosition] = value;
-							solve();
+							if((System.currentTimeMillis()- time) > timeout) {
+								return;
+							}
+							solve(time);
 							board[rowPosition][columnPosition] = 0;							
 						}
 					
@@ -100,9 +107,57 @@ public class Solver {
 
 
 	public boolean isValid() {
-		solve();
-		return (solution.size() == 1);
+		if(checkValidColumns() && checkValidRows() && checkValidSections()) {
+			solve(System.currentTimeMillis());
+			return (solution.size() == 1);
+		}
+		return false;
+	}
+	// working on.set.add(grid[r][c])
+	private boolean checkValidColumns() {
+		for(int column = 0; column<9;column++) {
+			Set<Integer> set = new HashSet<>();
+			for(int row = 0; row<9;row++) {
+				if(board[row][column] != 0 && !set.add(board[row][column]))
+					return false;
+				}
+		}
+		return true;
+	}
+	private boolean checkValidRows() {
+		for(int row = 0; row<9;row++) {
+			Set<Integer> set = new HashSet<>();
+			for(int column = 0; column<9;column++) {
+				if(board[row][column] != 0 && !set.add(board[row][column]))
+					return false;
+			}
+		}
+		return true;
+	}
+	private boolean checkValidSections() {	
+		for(int section = 0; section <9; section+=3) {
+			Set<Integer>set = new HashSet<>();
+			for(int row = section; row < section+3;row++)
+				for(int column = section; column < section+3;column++)
+					if(board[row][column] != 0 && !set.add(board[row][column])) {
+						return false;
+					}
+		}
+		return true;
+	}
+
+
+	public void reset() {
+		for(int[] temp : board)
+			Arrays.fill(temp, 0);
+		solutionIndex = 0;
+		solution = new CopyOnWriteArrayList<>();		
 		
+	}
+
+
+	public int getSolutionSize() {
+		return solution.size();
 	}
 
 

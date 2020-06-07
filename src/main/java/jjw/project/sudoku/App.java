@@ -4,41 +4,50 @@ import java.awt.Dimension;
 
 import javax.swing.*;
 import java.awt.FlowLayout;
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.Font;
 
 public class App {
+	private static final JTextPane textField = new JTextPane();
 
 	public static void main(String[] args) {
 		JFrame display = new JFrame();
 		display.setResizable(false);
 		SudokuGUI puzzle = new SudokuGUI();
-		int[][] testPuzzle = {	{0,9,6,0,4,0,0,3,0},
-								{0,5,7,8,2,0,0,0,0},
-								{1,0,0,9,0,0,5,0,0},
-								{0,0,9,0,1,0,0,0,8},
-								{5,0,0,0,0,0,0,0,2},
-								{4,0,0,0,9,0,6,0,0},
-								{0,0,4,0,0,3,0,0,1},
-								{0,0,0,0,7,9,2,6,0},
-								{0,2,0,0,5,0,9,8,0}};
 		
 		display.getContentPane().setLayout(new FlowLayout());
-		puzzle.setBoard(testPuzzle);
+		textField.setFont(new Font("Arial", Font.PLAIN, 14));
+		textField.setEditable(false);
+		textField.setText("Please enter a sudoku to solve!");
+		display.getContentPane().add(textField);
 		display.getContentPane().add(puzzle);
 		
 		JButton solve = new JButton("Solve");
+		solve.setFont(new Font("Arial", Font.PLAIN, 24));
 		solve.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				puzzle.solve();
+				int numberOfSolutions = puzzle.solve();
+				if(numberOfSolutions == 1)
+					textField.setText("A Valid sudoku with only one solution:");
+				else
+					textField.setText("Thats not a valid sudoku! There were " + numberOfSolutions + " solutions including:");
 			}
 		});
 		display.getContentPane().add(solve);
+		
+		JButton reset = new JButton("Reset");
+		reset.setFont(new Font("Arial", Font.PLAIN, 24));
+		reset.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				puzzle.reset();
+			}
+		});
+		display.getContentPane().add(reset);
 		display.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		display.setSize(new Dimension(920, 1026));
+		display.setSize(new Dimension(920, 1060));
 		display.setVisible(true);
 	}
 

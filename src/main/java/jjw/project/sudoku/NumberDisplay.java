@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -30,6 +32,12 @@ public class NumberDisplay extends JTextField {
 		setBackground(Color.white);
 		setBorder(BorderFactory.createLineBorder(Color.lightGray));
 		setHorizontalAlignment(CENTER);
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				setText("");				
+			}
+		});
 		if(number == 0)
 			setText("");
 		else
@@ -43,7 +51,7 @@ public class NumberDisplay extends JTextField {
 							throws BadLocationException {
 				String text = str;
 				if((filterBypass.getDocument().getLength() + str.length() - length) <= MAX_NUMBERS
-						&& text.matches("[1-9]")) {
+						&& text.matches("[0-9]|^$")) {
 					super.replace(filterBypass, offset, length, text, attributes);
 				}
 				else
@@ -69,6 +77,8 @@ public class NumberDisplay extends JTextField {
 	@Override
 	public void setText(String str) {
 		super.setText(str);
+		if(str == "0")
+			setText("");
 	}
 		
 		

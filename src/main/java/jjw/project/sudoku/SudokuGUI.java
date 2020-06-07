@@ -9,29 +9,20 @@ import java.awt.GridLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
-
 import lombok.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Arrays;
-import java.beans.PropertyChangeEvent;
 
-public class SudokuGUI extends JInternalFrame  implements PropertyChangeListener{
+public class SudokuGUI extends JInternalFrame  {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+	private static 	Solver solver = new Solver();
 	private static final int MAX_ROWS = 9;
 	private static final int MAX_COLUMNS = 9;
-	private static Solver solver = new Solver();
+	private static Font bold = new Font("Arial", Font.BOLD, 50);
+	private static Font plain = new Font("Arial", Font.PLAIN, 50);
 	@Getter
 	private int[][] board = {	{0,0,0,0,0,0,0,0,0},
 								{0,0,0,0,0,0,0,0,0},
@@ -75,31 +66,55 @@ public class SudokuGUI extends JInternalFrame  implements PropertyChangeListener
 				if(board[row][column] != 0) {
 				components[counter].setText(String.valueOf(board[row][column]));
 				components[counter].setEditable(false);
-				components[counter].setFont(new Font("Arial", Font.BOLD, 50));
+				components[counter].setFont(bold);
 				}
 				counter++;
 			}
 		
 	}
-	public void solve(){
+	public int solve(){
+		solver.reset();
+		updateBoard();
 		solver.setBoard(board);
-		solver.solve();
-		setBoard(solver.nextSolution());
-		
+		if(solver.isValid()) {	
+			setBoard(solver.nextSolution());
+			return 1;
+		}
+		else {
+			setBoard(solver.nextSolution());
+			return solver.getSolutionSize();
+		}
 	}
 
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		try {
-			NumberDisplay changed = (NumberDisplay) evt.getSource();
-			int component = Arrays.binarySearch(components, changed);
-			board[component/9][component%9] = Integer.parseUnsignedInt(changed.getText());
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
+	private void updateBoard() {
+		int counter = 0;
+		for(int row = 0; row < MAX_ROWS; row++)
+			for(int column = 0;column < MAX_COLUMNS;column++) {
+				if(board[row][column] == 0 && !components[counter].getText().equals("")) {
+					board[row][column] = Integer.parseInt(components[counter].getText());
+				}
+				counter++;
+			}
 	}
+	public void reset() {
+		int[][] emptyBoard = {	{0,0,0,0,0,0,0,0,0},
+								{0,0,0,0,0,0,0,0,0},
+								{0,0,0,0,0,0,0,0,0},
+								{0,0,0,0,0,0,0,0,0},
+								{0,0,0,0,0,0,0,0,0},
+								{0,0,0,0,0,0,0,0,0},
+								{0,0,0,0,0,0,0,0,0},
+								{0,0,0,0,0,0,0,0,0},
+								{0,0,0,0,0,0,0,0,0}};		
+		setBoard(emptyBoard);
+		solver.reset();
+		for(JTextField temp : components) {
+			temp.setText("0");
+			temp.setEditable(true);
+			temp.setFont(plain);
+		}
+	}
+
 	private class SectionDrawer extends JComponent {
 		/**
 		 * 
